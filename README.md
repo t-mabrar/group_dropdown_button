@@ -21,6 +21,7 @@ A powerful, customizable Flutter widget for rendering **grouped, searchable, rec
 ---
 
 ## 🚀 Features
+[⬆Table of Contents](#-table-of-contents)
 
 - ✅ Grouped dropdown items with support for recursive nesting
 - 🔍 Live search & filtering
@@ -33,6 +34,7 @@ A powerful, customizable Flutter widget for rendering **grouped, searchable, rec
 ---
 
 ## 📸 Screenshots
+[⬆Table of Contents](#-table-of-contents)
 
 <!-- 🖼️ Add a GIF or screenshots here showcasing the widget in action! -->
 <!-- e.g.,
@@ -41,6 +43,7 @@ A powerful, customizable Flutter widget for rendering **grouped, searchable, rec
 *A visual demonstration speaks volumes! Consider adding one here.*
 
 ## 🛠️ Installation
+[⬆Table of Contents](#-table-of-contents)
 
 1.  Add this gem to your package's `pubspec.yaml` file:
 
@@ -56,6 +59,7 @@ A powerful, customizable Flutter widget for rendering **grouped, searchable, rec
     ```
 
 ## 📖 Usage
+[⬆Table of Contents](#-table-of-contents)
 
 ### 1. Import the Package
 
@@ -131,6 +135,7 @@ Here's a practical example:
 ```
 
 ## 🎨 Customization Options
+[⬆Table of Contents](#-table-of-contents)
 
 The `GroupDropdownButton` is packed with properties to tailor its look and feel.
 
@@ -158,17 +163,6 @@ The `GroupDropdownButton` is packed with properties to tailor its look and feel.
 -   `initialValue`: `GroupedDropdownOption?` - Pre-select an item to start.
 -   `buttonWidth`: `double` - Set the dropdown button's width (defaults to `300.0`).
 
-#### Input Field Appearance (via internal `DropdownTextField`)
-
--   `hintText`: `String?` - Placeholder text.
--   `labelText`: `String?` - Label floating above the field.
--   `prefix`: `Widget?` - Icon or widget before the input text.
--   `suffix`: `Widget?` - Icon or widget after the input text (defaults to an animated dropdown arrow).
--   `contentPadding`: `EdgeInsets?` - Inner padding of the field.
--   `borderRadius`: `double` - Corner roundness for outline borders (defaults to `5.0`).
--   `borderType`: `TextFieldInputBorder` - Choose `TextFieldInputBorder.outLine` (default) or `TextFieldInputBorder.underLine`.
--   `borderColor`, `enabledBorderColor`, `focusedBorderColor`, `errorBorderColor`, `focusedErrorBorderColor`: `Color?` - Fine-tune border colors for different states.
-
 #### Item & Group Display
 
 -   `itemPrefix`: `Widget?` - A leading widget for each selectable item in the list.
@@ -185,9 +179,10 @@ The `GroupDropdownButton` is packed with properties to tailor its look and feel.
 
 #### Theming 🌈
 
-The widget smartly adapts to your app's `ThemeData` (text styles, primary color, error color, icon colors via `AppContext` extension). You can always override these by providing specific color properties directly.
+The widget smartly adapts to your app's `ThemeData` (text styles, primary color, error color, icon colors via `AppContext` extension). You can always override these by providing specific color properties directly from your theme.
 
 ## 🧱 `GroupedDropdownOption` Data Structure
+[⬆Table of Contents](#-table-of-contents)
 
 This class is the blueprint for your dropdown items (both groups and their sub-items).
 
@@ -212,6 +207,7 @@ class GroupedDropdownOption {
 ---
 
 ## 📁 Package Folder Structure (for reference)
+[⬆Table of Contents](#-table-of-contents)
 
 ```
 lib/
@@ -227,7 +223,8 @@ lib/
 ```
 ---
 
-## 🤝 Contributing
+## 🤝 Contributing ## [⬆Table of Contents](#-table-of-contents)
+
 
 Contributions make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**!
 
@@ -238,6 +235,7 @@ Contributions make the open-source community such an amazing place to learn, ins
 5.  Open a Pull Request
 
 ## 📜 License
+[⬆Table of Contents](#-table-of-contents)
 
 Distributed under the MIT License. See `LICENSE` file for more information.
 <!-- Create a LICENSE file if you don't have one, e.g., with the MIT license text -->

@@ -6,6 +6,20 @@ A powerful, customizable Flutter widget for rendering **grouped, searchable, rec
 
 ---
 
+## 📚 Table of Contents
+
+- [🚀 Features](#-features)
+- [📸 Screenshots](#-screenshots)
+- [🛠️ Installation](#-installation)
+- [📖 Usage](#-usage)
+- [🎨 Customization Options](#-customization-options)
+- [🧱 GroupedDropdownOption Data Structure](#-groupeddropdownoption-data-structure)
+- [📁 Package Folder Structure (for reference)](#-package-folder-structure-for-reference)
+- [🤝 Contributing](#-contributing)
+- [📜 License](#-license)
+
+---
+
 ## 🚀 Features
 
 - ✅ Grouped dropdown items with support for recursive nesting
@@ -195,6 +209,23 @@ class GroupedDropdownOption {
   });
 }
 ```
+---
+
+## 📁 Package Folder Structure (for reference)
+
+```
+lib/
+├── group_dropdown_button.dart
+├── src/
+│   ├── entity/
+│   │   └── dropdown_return_item.dart
+│   ├── utils/
+│   │   └── extensions.dart
+│   └── widgets/
+│       ├── text_field.dart
+│       └── no_options.dart
+```
+---
 
 ## 🤝 Contributing
 

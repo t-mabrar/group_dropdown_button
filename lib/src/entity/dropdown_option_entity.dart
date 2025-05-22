@@ -1,12 +1,17 @@
-class GroupedDropdownOption {
+class DropdownButtonItem {
   final dynamic key;
+
   final String title;
+
   final Map<String, dynamic>? extraInfo;
-  final List<GroupedDropdownOption>? subItems;
+
+  final List<DropdownButtonItem>? subItems;
+
   final dynamic parentKey;
+
   final String? parentTitle;
 
-  GroupedDropdownOption({
+  DropdownButtonItem({
     required this.key,
     required this.title,
     this.extraInfo,
@@ -15,8 +20,8 @@ class GroupedDropdownOption {
     this.parentTitle,
   }) : assert(key != null, "Key should not be null");
 
-  factory GroupedDropdownOption.fromJSON(Map<String, dynamic> json) {
-    return GroupedDropdownOption(
+  factory DropdownButtonItem.fromJSON(Map<String, dynamic> json) {
+    return DropdownButtonItem(
       key: json['key'],
       title: json['title'],
       subItems: json['sub_items'] ?? [],
@@ -27,7 +32,7 @@ class GroupedDropdownOption {
   }
 
   Map<String, dynamic> toJSON() {
-    List<Map<String, dynamic>> _tempSubItems =
+    List<Map<String, dynamic>> tempSubItems =
         (subItems ?? [])
             .map(
               (eachItem) => {
@@ -41,7 +46,7 @@ class GroupedDropdownOption {
       'key': key,
       'title': title,
       'extra_info': extraInfo ?? {},
-      'sub_items': _tempSubItems,
+      'sub_items': tempSubItems,
       'parent_key': parentKey,
       'parent_title': parentTitle,
     };

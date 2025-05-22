@@ -45,31 +45,59 @@ class _HomePageState extends State<HomePage> {
               isRequired: true,
               // eachGroupIsExpansion: true,
               // enabledRadioForItems: true,
-              // itemPrefix: Icon(Icons.arrow_forward),
+              // showDividerBtwGroups: true,
               showCheckForSelected: true,
+              // itemPrefix: Icon(Icons.arrow_forward),
               items: [
-                GroupedDropdownOption(
+                DropdownButtonItem(
                   key: "one",
                   title: "One",
                   subItems: [
-                    GroupedDropdownOption(key: "one-1", title: "One-1"),
-                    GroupedDropdownOption(key: "one-2", title: "One-2"),
-                    GroupedDropdownOption(key: "one-3", title: "One-3"),
+                    DropdownButtonItem(
+                      key: "one-1",
+                      title: "One-1",
+                      subItems: [
+                        DropdownButtonItem(key: "one-1-1", title: "One-1-1"),
+                        DropdownButtonItem(key: "one-1-2", title: "One-1-2"),
+                        DropdownButtonItem(key: "one-1-3", title: "One-1-3"),
+                      ],
+                    ),
+                    DropdownButtonItem(
+                      key: "one-2",
+                      title: "One-2",
+                      subItems: [
+                        DropdownButtonItem(key: "one-2-1", title: "One-2-1"),
+                        DropdownButtonItem(key: "one-2-2", title: "One-2-2"),
+                        DropdownButtonItem(key: "one-2-3", title: "One-2-3"),
+                      ],
+                    ),
+                    DropdownButtonItem(
+                      key: "one-3",
+                      title: "One-3",
+                      subItems: [
+                        DropdownButtonItem(key: "one-3-1", title: "One-3-1"),
+                        DropdownButtonItem(key: "one-3-2", title: "One-3-2"),
+                        DropdownButtonItem(key: "one-3-3", title: "One-3-3"),
+                      ],
+                    ),
                   ],
                 ),
-                GroupedDropdownOption(
+                DropdownButtonItem(
                   key: "two",
                   title: "Two",
                   subItems: [
-                    GroupedDropdownOption(key: "two-1", title: "Two-1"),
-                    GroupedDropdownOption(key: "two-2", title: "Two-2"),
-                    GroupedDropdownOption(key: "two-3", title: "Two-3"),
+                    DropdownButtonItem(key: "two-1", title: "Two-1"),
+                    DropdownButtonItem(key: "two-2", title: "Two-2"),
+                    DropdownButtonItem(key: "two-3", title: "Two-3"),
                   ],
                 ),
+                DropdownButtonItem(key: "three", title: "Three"),
               ],
               labelText: "<this is label>",
               hintText: "<this is hint>",
-              onSelect: (value) {},
+              onSelect: (value) {
+                if (value != null) debugPrint(value.toJson().toString());
+              },
             ),
           ),
           ElevatedButton(

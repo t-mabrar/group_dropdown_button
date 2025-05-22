@@ -5,53 +5,98 @@ import 'package:group_dropdown_button/src/utils/extensions.dart';
 import 'package:group_dropdown_button/src/widgets/text_field.dart';
 import 'package:group_dropdown_button/src/widgets/no_options.dart';
 
+/// A dropdown button widget that supports grouping of items,
+/// search functionality, and extensive customization.
+///
+/// This widget allows users to select an item from a list, which can be
+/// organized into hierarchical groups. It provides a text field for display
+/// and interaction, which can be styled and configured.
 class GroupDropdownButton extends StatefulWidget {
+  /// The list of [DropdownButtonItem] to display in the dropdown.
+  /// Each item can have sub-items, creating a grouped structure.
   final List<DropdownButtonItem> items;
 
+  /// Callback function that is called when an item is selected.
+  /// It receives a [DropdownReturnItem] which includes the selected item's
+  /// key, title, and its parent hierarchy, or `null` if the selection is cleared.
   final ValueChanged<DropdownReturnItem?> onSelect;
 
+  /// The width of the dropdown button. Defaults to `300.0`.
   final double buttonWidth;
 
+  /// An optional widget to display as a prefix for each item in the dropdown list.
   final Widget? itemPrefix;
 
+  /// Whether the dropdown field is required. If `true`, a validator will
+  /// enforce that a selection is made. Defaults to `false`.
   final bool isRequired;
 
+  /// Custom error text to display when [isRequired] is `true` and no item is selected.
+  /// If `null`, a default error message is used.
   final String? errorText;
 
+  /// The initially selected item. If provided, its title will be displayed
+  /// in the text field when the widget is first built.
   final DropdownButtonItem? initialValue;
 
+  /// Hint text to display in the text field when no item is selected.
   final String? hintText;
 
+  /// Label text to display above the text field.
   final String? labelText;
 
+  /// An optional widget to display as a prefix inside the text field.
   final Widget? prefix;
 
+  /// An optional widget to display as a suffix inside the text field.
+  /// Defaults to an animated dropdown arrow.
   final Widget? suffix;
 
+  /// If `true`, radio button-like indicators are shown for items,
+  /// visually representing the selection. Defaults to `false`.
+  /// Cannot be used simultaneously with [showCheckForSelected].
   final bool enabledRadioForItems;
 
+  /// If `true`, a divider is shown between groups in the dropdown list.
+  /// Defaults to `false`.
   final bool showDividerBtwGroups;
 
+  /// If `true`, each group in the dropdown list behaves as an expansion tile,
+  /// allowing it to be collapsed or expanded. Defaults to `false`.
   final bool eachGroupIsExpansion;
 
+  /// If `true`, a check mark (or [checkWidgetForSelectedItem]) is shown
+  /// next to the selected item in the dropdown list. Defaults to `false`.
+  /// Cannot be used simultaneously with [enabledRadioForItems].
   final bool showCheckForSelected;
 
+  /// A custom widget to use as the check mark when [showCheckForSelected] is `true`.
+  /// If `null`, a default check icon is used.
   final Widget? checkWidgetForSelectedItem;
 
+  /// Custom padding for the content inside the text field.
   final EdgeInsets? contentPadding;
 
+  /// The border radius for the text field. Defaults to `5.0`.
   final double borderRadius;
 
+  /// The type of border for the text field (outline or underline).
+  /// Defaults to [TextFieldInputBorder.outLine].
   final TextFieldInputBorder borderType;
 
+  /// The color of the text field's border.
   final Color? borderColor;
 
+  /// The color of the text field's border when it is enabled.
   final Color? enabledBorderColor;
 
+  /// The color of the text field's border when it is focused.
   final Color? focusedBorderColor;
 
+  /// The color of the text field's border when it has an error.
   final Color? errorBorderColor;
 
+  /// The color of the text field's border when it is focused and has an error.
   final Color? focusedErrorBorderColor;
 
   GroupDropdownButton({
@@ -93,27 +138,43 @@ class GroupDropdownButton extends StatefulWidget {
   State<GroupDropdownButton> createState() => _GroupDropdownButtonState();
 }
 
+/// State class for [GroupDropdownButton].
 class _GroupDropdownButtonState extends State<GroupDropdownButton> {
+  /// Overlay entry for the dropdown list.
   OverlayEntry? dropdownOverlayEntry;
+
+  /// LayerLink to connect the dropdown overlay with the text field.
   final dropdownLayerLink = LayerLink();
+
+  /// Controller for the text field.
   final textFieldController = TextEditingController();
+
+  /// GlobalKey for the CompositedTransformTarget widget, used to get the position and size of the text field.
   final selectorKey = GlobalKey();
 
+  /// The list of items currently displayed in the dropdown, which can be filtered.
   late List<DropdownButtonItem> dropdownGroupedItems;
 
   @override
   void initState() {
     super.initState();
 
+    // After the first frame is rendered, set the initial value if provided.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialValue != null) {
         textFieldController.text = widget.initialValue!.title;
       }
     });
 
+    // Initialize the displayed items with the full list from the widget.
     dropdownGroupedItems = List.from(widget.items);
   }
 
+  /// Constructs a [DropdownReturnItem] with its complete parent hierarchy.
+  ///
+  /// [currentItem] is the item for which to build the return structure.
+  /// [roots] are the top-level items to search within.
+  /// [parentChain] is the recursively built parent item.
   DropdownReturnItem _buildReturnItemWithParents(
     DropdownButtonItem currentItem,
     List<DropdownButtonItem> roots, {
@@ -121,6 +182,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
   }) {
     for (final root in roots) {
       if (root.key == currentItem.key) {
+        // Found the item at the root level.
         return DropdownReturnItem(
           key: root.key,
           title: root.title,
@@ -128,18 +190,20 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
         );
       }
 
+      // Recursive helper to traverse sub-items.
       DropdownReturnItem? traverse(
         DropdownButtonItem item,
         DropdownReturnItem? currentParent,
       ) {
         if (item.key == currentItem.key) {
+          // Found the item.
           return DropdownReturnItem(
             key: item.key,
             title: item.title,
             parent: currentParent,
           );
         }
-
+        // Check in sub-items.
         for (final child in item.subItems ?? []) {
           final parentForChild = DropdownReturnItem(
             key: item.key,
@@ -153,10 +217,12 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
         return null;
       }
 
+      // Start traversal from the current root.
       final match = traverse(root, null);
       if (match != null) return match;
     }
 
+    // Fallback if item not found in the provided roots (should ideally not happen if currentItem is from widget.items).
     return DropdownReturnItem(
       key: currentItem.key,
       title: currentItem.title,
@@ -164,6 +230,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
     );
   }
 
+  /// Builds the title widget for a group.
   Widget groupTitle(DropdownButtonItem eachGroup) => Text(
     eachGroup.title,
     style: context.textTheme.bodyLarge!.copyWith(
@@ -172,6 +239,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
     ),
   );
 
+  /// Builds the list of item widgets for a group, handling nested groups via [ExpansionTile].
   List<Widget> groupItems(DropdownButtonItem eachGroup) => [
     if ((eachGroup.subItems ?? []).isEmpty)
       Padding(
@@ -180,11 +248,13 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
       )
     else
       ...(eachGroup.subItems ?? []).map((eachItem) {
+        // Check if the current sub-item itself has sub-items (is a nested group).
         bool containsLevel2 = false;
         if (eachItem.subItems != null) {
           containsLevel2 = eachItem.subItems!.isNotEmpty;
         }
         return containsLevel2
+            // If it's a nested group, render it as an ExpansionTile.
             ? Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: ExpansionTile(
@@ -202,14 +272,17 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                 children: groupItems(eachItem),
               ),
             )
+            // Otherwise, render it as a regular item.
             : groupItem(eachItem: eachItem);
       }),
   ];
 
+  /// Builds a single item widget for the dropdown list.
   Widget groupItem({
     required DropdownButtonItem eachItem,
     bool isTitle = false,
   }) {
+    // Determine if the current item is the selected one.
     final isSelected = eachItem.title.toString() == textFieldController.text;
     return Container(
       width: double.infinity,
@@ -222,6 +295,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
           ),
           child: Row(
             children: [
+              // Radio button UI if enabled.
               if (widget.enabledRadioForItems) ...[
                 Container(
                   width: 20.0,
@@ -245,10 +319,12 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                 ),
               ],
               if (widget.enabledRadioForItems) SizedBox(width: 5.0),
+              // Item prefix if provided.
               if (widget.itemPrefix != null) ...[
                 widget.itemPrefix!,
                 SizedBox(width: 5.0),
               ],
+              // Item title.
               Expanded(
                 child: Text(
                   eachItem.title,
@@ -262,6 +338,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                       ),
                 ),
               ),
+              // Check mark UI if enabled and item is selected.
               if (isSelected && widget.showCheckForSelected) ...[
                 widget.checkWidgetForSelectedItem ??
                     Icon(Icons.check_circle, color: Colors.green),
@@ -270,6 +347,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
           ),
         ),
         onTap: () {
+          // Build the return item with parent hierarchy.
           final returnItem = _buildReturnItemWithParents(
             eachItem,
             widget.items,
@@ -277,6 +355,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
 
           widget.onSelect(returnItem);
           textFieldController.text = eachItem.title;
+          // Close the dropdown.
           dropdownOverlayEntry?.remove();
           dropdownOverlayEntry = null;
         },
@@ -284,22 +363,30 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
     );
   }
 
+  /// Creates and returns the [OverlayEntry] for the dropdown list.
   OverlayEntry optionsOverlayEntry() {
+    // Get the render box of the text field to determine its size and position.
     final renderBox =
         selectorKey.currentContext!.findRenderObject() as RenderBox;
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
 
+    // Calculate the total number of items and sub-items to estimate height.
     int length = dropdownGroupedItems.fold(
       0,
       (total, group) => total + 1 + (group.subItems?.length ?? 0),
     );
 
+    // Determine the vertical position of the dropdown.
+    // It tries to position below the text field, but if space is insufficient,
+    // it positions above.
     final heightFromTop = context.height - offset.dy;
     final positionHeight =
-        heightFromTop > 250
+        heightFromTop >
+                250 // Available space below is more than max dropdown height
             ? size.height + 3.0
-            : length * 25.0 < 240.0
+            : length * 25.0 <
+                240.0 // Estimated height is less than max dropdown height
             ? -(length * 25.0 + size.height)
             : -255.0;
 
@@ -312,6 +399,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
       builder: (context) {
         return Stack(
           children: [
+            // Full screen GestureDetector to close the dropdown when tapping outside.
             Positioned.fill(
               child: GestureDetector(
                 onTap: () {
@@ -321,7 +409,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                 },
               ),
             ),
-
+            // The dropdown list itself, positioned relative to the text field.
             Positioned(
               width: size.width,
               child: CompositedTransformFollower(
@@ -330,6 +418,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                 offset: Offset(positionWidth, positionHeight),
                 child: StatefulBuilder(
                   builder: (context, setOverlayState) {
+                    // TextFieldTapRegion ensures that tapping inside the dropdown doesn't unfocus the text field.
                     return TextFieldTapRegion(
                       child: Material(
                         elevation: 5.0,
@@ -337,6 +426,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                         child:
                             dropdownGroupedItems.isEmpty
                                 ? const AppNoOptions()
+                                // ConstrainedBox limits the maximum height of the dropdown.
                                 : ConstrainedBox(
                                   constraints: BoxConstraints(maxHeight: 250.0),
                                   child: SingleChildScrollView(
@@ -350,6 +440,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                                         children:
                                             dropdownGroupedItems.map((
                                               eachGroup,
+                                              // Iterate through each group to display.
                                             ) {
                                               bool containsItems = true;
                                               if (eachGroup.subItems != null) {
@@ -365,6 +456,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                                                 containsItems.toString(),
                                               );
                                               if (containsItems) {
+                                                // If the group has items, display as an ExpansionTile.
                                                 return ExpansionTile(
                                                   trailing:
                                                       widget.eachGroupIsExpansion
@@ -392,6 +484,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                                                   ),
                                                 );
                                               }
+                                              // If the group has no sub-items, display it as a single selectable item (title).
                                               return groupItem(
                                                 eachItem: eachGroup,
                                                 isTitle: true,
@@ -413,17 +506,22 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
     );
   }
 
+  /// Recursively filters a [DropdownButtonItem] and its sub-items based on a query.
+  /// Returns a new [DropdownButtonItem] if the item or any of its sub-items match the query,
+  /// otherwise returns `null`.
   DropdownButtonItem? _filterRecursive(DropdownButtonItem item, String query) {
     final queryLower = query.toLowerCase();
 
+    // Check if the current item's title matches the query.
     final titleMatches = item.title.toLowerCase().contains(queryLower);
 
+    // Recursively filter sub-items.
     final filteredSubItems =
         (item.subItems ?? [])
             .map((subItem) => _filterRecursive(subItem, query))
             .whereType<DropdownButtonItem>()
             .toList();
-
+    // If the title matches or there are matching sub-items, return a new item.
     if (titleMatches || filteredSubItems.isNotEmpty) {
       return DropdownButtonItem(
         key: item.key,
@@ -431,6 +529,8 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
         extraInfo: item.extraInfo,
         parentKey: item.parentKey,
         parentTitle: item.parentTitle,
+        // If title matches, keep original sub-items (or they will be filtered if query continues).
+        // If title doesn't match but sub-items do, use the filtered sub-items.
         subItems: titleMatches ? item.subItems : filteredSubItems,
       );
     }
@@ -438,11 +538,14 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
     return null;
   }
 
+  /// Finds an exact match for the query within a [DropdownButtonItem] and its sub-items.
+  /// Returns a [DropdownReturnItem] with its parent hierarchy if an exact match is found.
   DropdownReturnItem? _findExactMatch(
     DropdownButtonItem item,
     String query, [
     DropdownReturnItem? parent,
   ]) {
+    // Check for an exact, case-insensitive match of the title.
     if (item.title.toLowerCase() == query.toLowerCase()) {
       return DropdownReturnItem(
         key: item.key,
@@ -451,6 +554,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
       );
     }
 
+    // Recursively search in sub-items.
     for (final sub in item.subItems ?? []) {
       final match = _findExactMatch(
         sub,
@@ -463,10 +567,14 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
     return null;
   }
 
+  /// Filters the `dropdownGroupedItems` based on the query string.
+  /// Also attempts to find an exact match to pre-select if the user types a full item name.
   void _filterData(String query) {
+    // Clear previous selection when filtering starts.
     widget.onSelect(null);
 
     if (query.isEmpty) {
+      // If query is empty, reset to the full list of items.
       setState(() {
         dropdownGroupedItems = List.from(widget.items);
       });
@@ -474,22 +582,26 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
     }
 
     final List<DropdownButtonItem> filtered =
+        // Filter the original items list recursively.
         widget.items
             .map((item) => _filterRecursive(item, query))
             .whereType<DropdownButtonItem>()
             .toList();
 
+    // Attempt to find an exact match in the filtered results.
     DropdownReturnItem? selectedMatch;
     for (final item in filtered) {
       selectedMatch = _findExactMatch(item, query);
       if (selectedMatch != null) break;
     }
 
+    // If an exact match is found, notify the parent widget.
     if (selectedMatch != null) {
       widget.onSelect(selectedMatch);
     }
 
     setState(() {
+      // Update the displayed items with the filtered list.
       dropdownGroupedItems = filtered;
     });
   }
@@ -502,6 +614,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
         key: selectorKey,
         link: dropdownLayerLink,
         child: LayoutBuilder(
+          // LayoutBuilder is used here to potentially get constraints if needed, though not directly used in this snippet.
           builder: (context, constraints) {
             return DropdownTextField(
               borderRadius: widget.borderRadius,
@@ -517,6 +630,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
               labelText: widget.labelText,
               prefix: widget.prefix,
               suffix:
+                  // Default suffix is an animated dropdown arrow.
                   widget.suffix ??
                   SizedBox(
                     width: 30.0,
@@ -527,6 +641,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                     ),
                   ),
               validator:
+                  // Validator for the required field.
                   widget.isRequired
                       ? (value) =>
                           value == null || value.isEmpty
@@ -534,12 +649,16 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                               : null
                       : null,
               onChanged: (value) {
+                // Filter data as user types.
                 _filterData(value);
+                // Re-open or update the dropdown overlay with filtered items.
                 dropdownOverlayEntry?.remove();
                 dropdownOverlayEntry = optionsOverlayEntry();
                 Overlay.of(context).insert(dropdownOverlayEntry!);
               },
               onTap: () {
+                // When the text field is tapped, open the dropdown overlay.
+                // Reset to full list of items before showing.
                 dropdownOverlayEntry?.remove();
                 dropdownOverlayEntry = optionsOverlayEntry();
                 Overlay.of(context).insert(dropdownOverlayEntry!);

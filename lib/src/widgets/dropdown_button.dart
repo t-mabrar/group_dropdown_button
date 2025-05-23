@@ -220,27 +220,6 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
     // so we reset to the new full list.
     if (widget.items != oldWidget.items) {
       dropdownGroupedItems = List.from(widget.items);
-      // If the text field is empty or doesn't match the new initial value,
-      // and a new initial value is provided, update the text field.
-      // This avoids overwriting user input if they've already interacted.
-      if (widget.initialValue != null &&
-          (textFieldController.text.isEmpty ||
-              textFieldController.text != widget.initialValue!.title)) {
-        textFieldController.text = widget.initialValue!.title;
-      } else if (widget.initialValue == null &&
-          textFieldController.text.isNotEmpty) {
-        // If new initial value is null, but text field has a value (perhaps from old initialValue),
-        // clear it if it's not a user-typed value (this part is tricky without more context on user interaction flow)
-        // For now, let's assume if initialValue becomes null, we might want to clear if it matched the old one.
-        if (oldWidget.initialValue != null &&
-            textFieldController.text == oldWidget.initialValue!.title) {
-          // textFieldController.clear(); // Uncomment if clearing is desired
-        }
-      }
-    } else if (widget.initialValue != oldWidget.initialValue &&
-        widget.initialValue != null) {
-      // If only initialValue changed and it's not null
-      textFieldController.text = widget.initialValue!.title;
     }
   }
 

@@ -29,6 +29,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
+  String selectedContent = "";
 
   @override
   Widget build(BuildContext context) {
@@ -36,23 +37,36 @@ class _HomePageState extends State<HomePage> {
       key: _formKey,
       child: Center(
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           spacing: 10.0,
           children: [
-            SizedBox(height: 10.0),
+            Text(
+              "Group Dropdown Button",
+              style: TextStyle(
+                fontSize: 30.0,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+            SizedBox(height: 20.0),
+            // if (selectedContent.isNotEmpty) ...[
+            //   Text(selectedContent),
+            //   SizedBox(height: 10.0),
+            // ],
             GroupDropdownButton(
-              // initialValue: DropdownButtonItem(
-              //   key: "one-1-1",
-              //   title: "One-1-1",
-              // ),
-              // borderType: TextFieldInputBorder.underLine,
-              // eachGroupIsExpansion: true,
-              // enabledRadioForItems: true,
-              // showDividerBtwGroups: true,
-              // itemPrefix: Icon(Icons.arrow_forward),
+              initialValue: DropdownButtonItem(
+                key: "one-1-1",
+                title: "One-1-1",
+              ),
+              borderType: TextFieldInputBorder.underLine,
+              eachGroupIsExpansion: true,
+              enabledRadioForItems: true,
+              showDividerBtwGroups: true,
+              itemPrefix: Icon(Icons.adb_sharp),
               errorText: "<errorText comes here>",
               isRequired: true,
-              showCheckForSelected: true,
+              // showCheckForSelected: true,
+              checkWidgetForSelectedItem: Icon(Icons.abc),
               items: [
                 DropdownButtonItem(
                   key: "one",
@@ -102,9 +116,16 @@ class _HomePageState extends State<HomePage> {
               labelText: "<this is label>",
               hintText: "<this is hint>",
               onSelect: (value) {
-                if (value != null) debugPrint(value.toJson().toString());
+                if (value != null) {
+                  selectedContent = value.toJson().toString();
+                } else {
+                  selectedContent = "";
+                }
+                setState(() {});
               },
             ),
+
+            SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
                 _formKey.currentState!.validate();

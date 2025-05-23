@@ -54,6 +54,7 @@ class _HomePageState extends State<HomePage> {
             //   SizedBox(height: 10.0),
             // ],
             GroupDropdownButton(
+              textStyle: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
               initialValue: DropdownButtonItem(
                 key: "one-1-1",
                 title: "One-1-1",

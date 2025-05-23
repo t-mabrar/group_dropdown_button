@@ -196,6 +196,7 @@ The `GroupDropdownButton` is packed with properties to tailor its look and feel.
 | `buttonWidth`                                           | Width of the dropdown trigger button                     |
 | `isRequired`                                            | Enables validation if true                               |
 | `hintText`, `labelText`                                 | Hint/Label display inside the text field                 |
+| `hintStyle`, `labelStyle`, `textStyle`                  | Hint/Label/Textfield textstyle can be adjusted           |
 | `itemPrefix`                                            | Adds a widget before every dropdown item                 |
 | `showCheckForSelected`                                  | Displays check icon on selected item                     |
 | `enabledRadioForItems`                                  | Displays radio button instead of check icon              |
@@ -260,16 +261,20 @@ class GroupedDropdownOption {
 [⬆Table of Contents](#-table-of-contents)
 
 ```
-lib/
-├── group_dropdown_button.dart
-├── src/
-│   ├── entity/
-│   │   └── dropdown_return_item.dart
-│   ├── utils/
-│   │   └── extensions.dart
-│   └── widgets/
-│       ├── text_field.dart
-│       └── no_options.dart
+lib
+  ├── group_dropdown_button.dart
+  └── src
+  │   ├── entity
+  │       ├── dropdown_option_entity.dart
+  │       └── dropdown_return_item.dart
+  │   ├── utils
+  │       ├── enums.dart
+  │       ├── extensions.dart
+  │       └── validations.dart
+  │   └── widgets
+  │       ├── dropdown_button.dart
+  │       ├── no_options.dart
+  │       └── text_field.dart
 ```
 ---
 

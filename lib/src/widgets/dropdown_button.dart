@@ -42,8 +42,17 @@ class GroupDropdownButton extends StatefulWidget {
   /// Hint text to display in the text field when no item is selected.
   final String? hintText;
 
+  /// Style for the hint text.
+  final TextStyle? hintStyle;
+
   /// Label text to display above the text field.
   final String? labelText;
+
+  /// Style for the label text.
+  final TextStyle? labelStyle;
+
+  /// Style for the text field.
+  final TextStyle? textStyle;
 
   /// An optional widget to display as a prefix inside the text field.
   final Widget? prefix;
@@ -145,6 +154,9 @@ class GroupDropdownButton extends StatefulWidget {
     this.focusedBorderColor,
     this.errorBorderColor,
     this.focusedErrorBorderColor,
+    this.hintStyle,
+    this.labelStyle,
+    this.textStyle,
   }) : assert(
          items.isNotEmpty && items.length >= 2,
          "items can't be empty, at least 2 or more items are required",
@@ -778,6 +790,9 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
           // LayoutBuilder is used here to potentially get constraints if needed, though not directly used in this snippet.
           builder: (context, constraints) {
             return DropdownTextField(
+              hintStyle: widget.hintStyle,
+              labelStyle: widget.labelStyle,
+              textStyle: widget.textStyle,
               borderRadius: widget.borderRadius,
               borderType: widget.borderType,
               borderColor: widget.borderColor,

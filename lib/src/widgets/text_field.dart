@@ -20,8 +20,17 @@ class DropdownTextField extends StatefulWidget {
   /// Hint text to display when the text field is empty.
   final String? hintText;
 
+  /// Style for the hint text.
+  final TextStyle? hintStyle;
+
   /// Label text to display above or floating over the text field.
   final String? labelText;
+
+  /// Style for the label text.
+  final TextStyle? labelStyle;
+
+  /// Style for the text field.
+  final TextStyle? textStyle;
 
   /// An optional widget to display before the text input area.
   final Widget? prefix;
@@ -96,6 +105,9 @@ class DropdownTextField extends StatefulWidget {
     this.focusedBorderColor,
     this.errorBorderColor,
     this.focusedErrorBorderColor,
+    this.hintStyle,
+    this.labelStyle,
+    this.textStyle,
   });
 
   @override
@@ -195,14 +207,19 @@ class _DropdownTextFieldState extends State<DropdownTextField> {
       onChanged: widget.onChanged,
       onTap: widget.onTap,
       validator: widget.validator,
+      style: widget.textStyle,
       controller: _effectiveController, // Use the managed effective controller
       decoration: InputDecoration(
         // Hides the default counter text.
         counterText: "",
 
         // Styles for hint and label text, derived from the current theme.
-        hintStyle: context.textTheme.bodyLarge!.copyWith(color: Colors.grey),
-        labelStyle: context.textTheme.bodyLarge!.copyWith(color: Colors.grey),
+        hintStyle:
+            widget.hintStyle ??
+            context.textTheme.bodyLarge!.copyWith(color: Colors.grey),
+        labelStyle:
+            widget.labelStyle ??
+            context.textTheme.bodyLarge!.copyWith(color: Colors.grey),
 
         // Appends an asterisk (*) to hint and label text if a validator is present,
         // indicating a required field.

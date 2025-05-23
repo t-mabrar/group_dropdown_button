@@ -82,7 +82,7 @@ A powerful, customizable Flutter widget for rendering **grouped, searchable, rec
 
 | `borderType: TextFieldInputBorder.outLine` | `borderType: TextFieldInputBorder.underLine` |
 | ------------------ | ----------------- |
-| <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/screenshots/out_line_text_field.png" alt="out_line_text_field" width="400" height="400"> | <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/screenshots/under_line_text_field.png" alt="under_line_text_field" width="400" height="400">|
+| <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/screenshots/out_line_text_field.png" alt="out_line_text_field" width="400" height="250"> | <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/screenshots/under_line_text_field.png" alt="under_line_text_field" width="400" height="250">|
 
 #### `isRequired` - takes boolean value and manages to enable or disable validator to the textfield, default `false`
 #### `errorText` - tabkes string value and overides the default error message to custom error message, default `This field is required`, works only if `isRequired` is `true`

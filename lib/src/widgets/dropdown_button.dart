@@ -99,6 +99,26 @@ class GroupDropdownButton extends StatefulWidget {
   /// The color of the text field's border when it is focused and has an error.
   final Color? focusedErrorBorderColor;
 
+  /// Helper method to recursively find an item by its key within a list of [DropdownButtonItem]s.
+  /// Returns the [DropdownButtonItem] if found, otherwise `null`.
+  static DropdownButtonItem? _findItemByKeyRecursively(
+    List<DropdownButtonItem> items,
+    dynamic targetKey,
+  ) {
+    for (final item in items) {
+      if (item.key == targetKey) {
+        return item;
+      }
+      if (item.subItems != null && item.subItems!.isNotEmpty) {
+        final foundInSub = _findItemByKeyRecursively(item.subItems!, targetKey);
+        if (foundInSub != null) {
+          return foundInSub;
+        }
+      }
+    }
+    return null;
+  }
+
   GroupDropdownButton({
     super.key,
     required this.items,
@@ -132,6 +152,20 @@ class GroupDropdownButton extends StatefulWidget {
        assert(
          !(enabledRadioForItems && showCheckForSelected),
          "Cannot use both radio and check selection UI simultaneously",
+       ),
+       assert(
+         initialValue == null ||
+             _findItemByKeyRecursively(items, initialValue.key) != null,
+         "Initial value with key '${initialValue.key}' must exist in the items list. Please ensure the key matches an existing item.",
+       ),
+       assert(
+         initialValue == null ||
+             (_findItemByKeyRecursively(
+                   items,
+                   initialValue.key,
+                 )?.subItems?.isEmpty ??
+                 true),
+         "Initial value with key '${initialValue?.key}' cannot be a group (i.e., it must not have subItems). It must be a selectable leaf item.",
        );
 
   @override
@@ -679,10 +713,6 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
         key: item.key,
         title: item.title,
         extraInfo: item.extraInfo,
-        parentKey: item.parentKey,
-        parentTitle: item.parentTitle,
-        // If title matches, keep original sub-items (or they will be filtered if query continues).
-        // If title doesn't match but sub-items do, use the filtered sub-items.
         subItems: titleMatches ? item.subItems : filteredSubItems,
       );
     }

@@ -21,20 +21,12 @@ class DropdownButtonItem {
   /// allowing for nested or grouped structures.
   final List<DropdownButtonItem>? subItems;
 
-  /// The key of the parent item, if this item is a sub-item.
-  final dynamic parentKey;
-
-  /// The title of the parent item, if this item is a sub-item.
-  final String? parentTitle;
-
   /// Creates an instance of [DropdownButtonItem].
   DropdownButtonItem({
     required this.key,
     required this.title,
     this.extraInfo,
     this.subItems,
-    this.parentKey,
-    this.parentTitle,
   }) : assert(key != null, "Key should not be null");
 
   /// Creates a [DropdownButtonItem] from a JSON map.
@@ -52,8 +44,6 @@ class DropdownButtonItem {
       title: json['title'],
       subItems: json['sub_items'] ?? [],
       extraInfo: json['extra_info'] ?? {},
-      parentKey: json['parent_key'],
-      parentTitle: json['parent_title'] ?? "",
     );
   }
 
@@ -77,8 +67,6 @@ class DropdownButtonItem {
       'title': title,
       'extra_info': extraInfo ?? {},
       'sub_items': tempSubItems,
-      'parent_key': parentKey,
-      'parent_title': parentTitle,
     };
   }
 }

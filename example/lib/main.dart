@@ -36,19 +36,23 @@ class _HomePageState extends State<HomePage> {
       key: _formKey,
       child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          // mainAxisAlignment: MainAxisAlignment.end,
           spacing: 10.0,
           children: [
             SizedBox(height: 10.0),
             GroupDropdownButton(
+              // initialValue: DropdownButtonItem(
+              //   key: "one-1-1",
+              //   title: "One-1-1",
+              // ),
               // borderType: TextFieldInputBorder.underLine,
-              errorText: "<errorText comes here>",
-              isRequired: true,
               // eachGroupIsExpansion: true,
               // enabledRadioForItems: true,
               // showDividerBtwGroups: true,
-              showCheckForSelected: true,
               // itemPrefix: Icon(Icons.arrow_forward),
+              errorText: "<errorText comes here>",
+              isRequired: true,
+              showCheckForSelected: true,
               items: [
                 DropdownButtonItem(
                   key: "one",

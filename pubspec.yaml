@@ -1,7 +1,8 @@
 name: group_dropdown_button
-description: "A new Flutter package project."
-version: 0.0.1
+description: "GroupDropdown button"
+version: 1.0.0
 homepage:
+repository: https://github.com/t-mabrar/group_dropdown_button
 
 environment:
   sdk: ^3.7.2

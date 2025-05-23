@@ -177,7 +177,7 @@ class GroupDropdownButton extends StatefulWidget {
                    initialValue.key,
                  )?.subItems?.isEmpty ??
                  true),
-         "Initial value with key '${initialValue?.key}' cannot be a group (i.e., it must not have subItems). It must be a selectable leaf item.",
+         "Initial value with key '${initialValue.key}' cannot be a group (i.e., it must not have subItems). It must be a selectable leaf item.",
        );
 
   @override

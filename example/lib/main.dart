@@ -34,12 +34,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        spacing: 10.0,
-        children: [
-          SizedBox(height: 10.0),
-          Center(
-            child: GroupDropdownButton(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          spacing: 10.0,
+          children: [
+            SizedBox(height: 10.0),
+            GroupDropdownButton(
               // borderType: TextFieldInputBorder.underLine,
               errorText: "<errorText comes here>",
               isRequired: true,
@@ -92,6 +93,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 DropdownButtonItem(key: "three", title: "Three"),
+                DropdownButtonItem(key: "four", title: "Four"),
               ],
               labelText: "<this is label>",
               hintText: "<this is hint>",
@@ -99,14 +101,14 @@ class _HomePageState extends State<HomePage> {
                 if (value != null) debugPrint(value.toJson().toString());
               },
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _formKey.currentState!.validate();
-            },
-            child: Text("Press"),
-          ),
-        ],
+            ElevatedButton(
+              onPressed: () {
+                _formKey.currentState!.validate();
+              },
+              child: Text("Press"),
+            ),
+          ],
+        ),
       ),
     );
   }

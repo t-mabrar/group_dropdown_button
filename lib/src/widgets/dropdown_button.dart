@@ -156,6 +156,14 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
   late List<DropdownButtonItem> dropdownGroupedItems;
 
   @override
+  void dispose() {
+    textFieldController.dispose();
+    dropdownOverlayEntry = null;
+    dropdownOverlayEntry?.remove();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
 
@@ -168,6 +176,54 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
 
     // Initialize the displayed items with the full list from the widget.
     dropdownGroupedItems = List.from(widget.items);
+  }
+
+  @override
+  void didUpdateWidget(covariant GroupDropdownButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the items list has changed, update the internal list.
+    // This also handles the case where the search might be active,
+    // so we reset to the new full list.
+    if (widget.items != oldWidget.items) {
+      dropdownGroupedItems = List.from(widget.items);
+      // If the text field is empty or doesn't match the new initial value,
+      // and a new initial value is provided, update the text field.
+      // This avoids overwriting user input if they've already interacted.
+      if (widget.initialValue != null &&
+          (textFieldController.text.isEmpty ||
+              textFieldController.text != widget.initialValue!.title)) {
+        textFieldController.text = widget.initialValue!.title;
+      } else if (widget.initialValue == null &&
+          textFieldController.text.isNotEmpty) {
+        // If new initial value is null, but text field has a value (perhaps from old initialValue),
+        // clear it if it's not a user-typed value (this part is tricky without more context on user interaction flow)
+        // For now, let's assume if initialValue becomes null, we might want to clear if it matched the old one.
+        if (oldWidget.initialValue != null &&
+            textFieldController.text == oldWidget.initialValue!.title) {
+          // textFieldController.clear(); // Uncomment if clearing is desired
+        }
+      }
+    } else if (widget.initialValue != oldWidget.initialValue &&
+        widget.initialValue != null) {
+      // If only initialValue changed and it's not null
+      textFieldController.text = widget.initialValue!.title;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // This method is called when dependencies of this State object change.
+    // For example, if you were using an InheritedWidget and its value changed.
+    // In this specific widget, there aren't obvious direct dependencies that
+    // would typically be handled here, but it's good practice to include the override
+    // if you anticipate needing it or for completeness.
+    // Example:
+    // final locale = Localizations.localeOf(context);
+    // if (_cachedLocale != locale) {
+    //   _cachedLocale = locale;
+    //   // Do something based on locale change
+    // }
   }
 
   /// Constructs a [DropdownReturnItem] with its complete parent hierarchy.
@@ -228,6 +284,60 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
       title: currentItem.title,
       parent: parentChain,
     );
+  }
+
+  /// Estimates the vertical height of the dropdown content.
+  /// This is used to help position the overlay more accurately, especially when content is small.
+  double _estimateDropdownContentHeight() {
+    if (dropdownGroupedItems.isEmpty) {
+      // Approximate height for the 'No options available' message.
+      return 60.0;
+    }
+
+    double totalHeight = 0;
+    // Approximate heights for list items and group headers.
+    // These could be further refined or made configurable if needed.
+    const double estimatedItemRowHeight =
+        42.0; // For a typical ListTile-like item.
+    const double estimatedExpansionTileHeader =
+        48.0; // Standard ExpansionTile header.
+    const double dividerHeight = 1.0;
+
+    // Recursive helper to estimate height of sub-items.
+    double calculateSubItemsHeight(List<DropdownButtonItem> subItems) {
+      double height = 0;
+      for (final item in subItems) {
+        // Check if the sub-item is itself a group (has further sub-items).
+        if (item.subItems?.isNotEmpty ?? false) {
+          height += estimatedExpansionTileHeader;
+          height += calculateSubItemsHeight(item.subItems!);
+          // Assuming divider is shown for nested groups if configured.
+          if (widget.showDividerBtwGroups && widget.eachGroupIsExpansion) {
+            height += dividerHeight;
+          }
+        } else {
+          height += estimatedItemRowHeight;
+        }
+      }
+      return height;
+    }
+
+    for (int i = 0; i < dropdownGroupedItems.length; i++) {
+      final group = dropdownGroupedItems[i];
+      if (group.subItems?.isNotEmpty ?? false) {
+        totalHeight += estimatedExpansionTileHeader;
+        totalHeight += calculateSubItemsHeight(group.subItems!);
+        if (widget.showDividerBtwGroups &&
+            i < dropdownGroupedItems.length - 1) {
+          totalHeight += dividerHeight;
+        }
+      } else {
+        totalHeight += estimatedItemRowHeight; // Direct item or group title.
+      }
+    }
+    return totalHeight > 0
+        ? totalHeight
+        : estimatedItemRowHeight; // Ensure a minimum if not empty.
   }
 
   /// Builds the title widget for a group.
@@ -358,6 +468,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
           // Close the dropdown.
           dropdownOverlayEntry?.remove();
           dropdownOverlayEntry = null;
+          setState(() {});
         },
       ),
     );
@@ -365,35 +476,79 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
 
   /// Creates and returns the [OverlayEntry] for the dropdown list.
   OverlayEntry optionsOverlayEntry() {
+    // Ensure the context for selectorKey is available.
+    if (selectorKey.currentContext == null) {
+      // Return an empty overlay or handle error, though this should ideally not happen
+      // if the button is visible and this method is called.
+      return OverlayEntry(builder: (context) => const SizedBox.shrink());
+    }
+
     // Get the render box of the text field to determine its size and position.
     final renderBox =
         selectorKey.currentContext!.findRenderObject() as RenderBox;
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
 
-    // Calculate the total number of items and sub-items to estimate height.
-    int length = dropdownGroupedItems.fold(
-      0,
-      (total, group) => total + 1 + (group.subItems?.length ?? 0),
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+
+    final double textFieldLeftX = offset.dx;
+    final double textFieldTopY = offset.dy;
+    final double textFieldHeight = size.height;
+    final double textFieldWidth = size.width; // This is widget.buttonWidth
+    final double textFieldBottomY = textFieldTopY + textFieldHeight;
+    final double spaceBelow = screenHeight - textFieldBottomY;
+    final double spaceAbove = textFieldTopY;
+
+    // Max height the overlay content area can take.
+    final double maxDropdownHeight = 250.0;
+    // Estimate the actual height the content would occupy.
+    final double estimatedContentHeight = _estimateDropdownContentHeight();
+    // The height to consider for positioning: actual content height, but capped by maxDropdownHeight.
+    final double heightToPositionWith = estimatedContentHeight.clamp(
+      0.0,
+      maxDropdownHeight,
     );
 
-    // Determine the vertical position of the dropdown.
-    // It tries to position below the text field, but if space is insufficient,
-    // it positions above.
-    final heightFromTop = context.height - offset.dy;
-    final positionHeight =
-        heightFromTop >
-                250 // Available space below is more than max dropdown height
-            ? size.height + 3.0
-            : length * 25.0 <
-                240.0 // Estimated height is less than max dropdown height
-            ? -(length * 25.0 + size.height)
-            : -255.0;
+    final double gap = 3.0; // Gap between text field and dropdown
+    double followerOffsetDy; // Vertical offset for CompositedTransformFollower
 
-    final positionWidth =
-        context.width - offset.dx < 250.0
-            ? -(250 - (context.width - offset.dx))
-            : 0.0;
+    bool canFitBelow = spaceBelow >= heightToPositionWith + gap;
+    bool canFitAbove = spaceAbove >= heightToPositionWith + gap;
+
+    if (canFitBelow) {
+      // Enough space below for the content (up to maxDropdownHeight).
+      followerOffsetDy = textFieldHeight + gap;
+    } else if (canFitAbove) {
+      // Enough space above for the content (up to maxDropdownHeight).
+      // Position the overlay so its bottom is 'gap' units above the text field's top.
+      followerOffsetDy = -(heightToPositionWith + gap);
+    } else {
+      // Content (even capped at maxDropdownHeight) doesn't fit neatly above or below.
+      // Fallback: prioritize the side with more raw screen space.
+      // The overlay will be clipped by screen edges if necessary.
+      // Its internal height is still constrained by maxDropdownHeight via ConstrainedBox.
+      if (spaceBelow >= spaceAbove && spaceBelow > gap) {
+        followerOffsetDy = textFieldHeight + gap;
+      } else if (spaceAbove > gap) {
+        // Position above to fill available space. Overlay's top aligns with screen top.
+        followerOffsetDy = -textFieldTopY;
+      } else {
+        // Very little space, default to below and let it clip.
+        followerOffsetDy = textFieldHeight + gap;
+      }
+    }
+    double followerOffsetDx =
+        0.0; // Horizontal offset for CompositedTransformFollower
+    // Adjust dx to keep dropdown on screen horizontally
+    if (textFieldLeftX + textFieldWidth + followerOffsetDx > screenWidth) {
+      // Off-screen to the right
+      followerOffsetDx = screenWidth - (textFieldLeftX + textFieldWidth);
+    }
+    if (textFieldLeftX + followerOffsetDx < 0) {
+      // Off-screen to the left
+      followerOffsetDx = -textFieldLeftX;
+    }
 
     return OverlayEntry(
       builder: (context) {
@@ -415,7 +570,7 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
               child: CompositedTransformFollower(
                 link: dropdownLayerLink,
                 showWhenUnlinked: false,
-                offset: Offset(positionWidth, positionHeight),
+                offset: Offset(followerOffsetDx, followerOffsetDy),
                 child: StatefulBuilder(
                   builder: (context, setOverlayState) {
                     // TextFieldTapRegion ensures that tapping inside the dropdown doesn't unfocus the text field.
@@ -452,9 +607,6 @@ class _GroupDropdownButtonState extends State<GroupDropdownButton> {
                                                 containsItems =
                                                     eachGroup.subItems != null;
                                               }
-                                              debugPrint(
-                                                containsItems.toString(),
-                                              );
                                               if (containsItems) {
                                                 // If the group has items, display as an ExpansionTile.
                                                 return ExpansionTile(

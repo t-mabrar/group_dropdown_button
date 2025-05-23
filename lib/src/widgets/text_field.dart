@@ -104,26 +104,86 @@ class DropdownTextField extends StatefulWidget {
 
 /// State class for [DropdownTextField].
 class _DropdownTextFieldState extends State<DropdownTextField> {
-  /// The local [TextEditingController] used if no external controller is provided
-  /// or if an initial value needs to be set on a provided controller.
-  TextEditingController _controller = TextEditingController();
+  /// The [TextEditingController] that will be used by the [TextFormField].
+  /// This can be either the `widget.controller` if provided, or a locally created one.
+  late TextEditingController _effectiveController;
 
-  /// Flag to determine if the local [_controller] should be used or the [widget.controller].
-  bool _useLocalController = false;
+  /// Tracks whether the [_effectiveController] was created locally by this state.
+  /// If `true`, this state is responsible for disposing it.
+  bool _isLocalController = false;
 
   @override
   void initState() {
     super.initState();
+    _setupController();
+  }
 
-    // If an external controller is provided AND an initial value is given,
-    // use the external controller and set its text to the initial value if it's currently empty.
-    if (widget.controller != null && widget.initialValue != null) {
-      _useLocalController = true;
-      _controller = widget.controller!;
-      if (widget.initialValue!.isNotEmpty) {
-        _controller.text = widget.initialValue!;
+  /// Sets up or updates the [_effectiveController] based on `widget.controller` and `widget.initialValue`.
+  void _setupController() {
+    if (widget.controller == null) {
+      // No external controller provided, create and manage a local one.
+      _effectiveController = TextEditingController(
+        text: widget.initialValue ?? '',
+      );
+      _isLocalController = true;
+    } else {
+      // External controller is provided.
+      _effectiveController = widget.controller!;
+      _isLocalController = false;
+      // If initialValue is also provided and the external controller's text is empty,
+      // set its text. This helps initialize an empty external controller.
+      if (widget.initialValue != null && _effectiveController.text.isEmpty) {
+        _effectiveController.text = widget.initialValue!;
       }
     }
+  }
+
+  @override
+  void didUpdateWidget(covariant DropdownTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final bool controllerIdentityChanged =
+        widget.controller != oldWidget.controller;
+
+    if (controllerIdentityChanged) {
+      // If we were managing a local controller previously, and it's not the new controller
+      // (i.e., widget.controller is now provided, or widget.controller is null again after being non-null),
+      // then dispose the old local controller.
+      if (_isLocalController && _effectiveController != widget.controller) {
+        _effectiveController.dispose();
+      }
+      // Re-initialize the controller (either use the new widget.controller or create a new local one).
+      _setupController();
+    } else {
+      // The controller instance itself hasn't changed (or both were/are null).
+      // Now, check if initialValue has changed.
+      if (widget.initialValue != oldWidget.initialValue) {
+        // If initialValue changes, update the text of the _effectiveController.
+        // This makes initialValue behave like a "value" prop that can be changed externally.
+        // We update only if the current text is different to avoid unnecessary controller notifications.
+        if (_effectiveController.text != (widget.initialValue ?? '')) {
+          _effectiveController.text = widget.initialValue ?? '';
+        }
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // This method is called when dependencies of this State object change.
+    // For example, if you were using an InheritedWidget and its value changed.
+    // In this specific widget, there aren't obvious direct dependencies that
+    // would typically be handled here.
+  }
+
+  @override
+  void dispose() {
+    // Dispose the controller only if it was created and is managed locally by this state.
+    if (_isLocalController) {
+      _effectiveController.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -135,7 +195,7 @@ class _DropdownTextFieldState extends State<DropdownTextField> {
       onChanged: widget.onChanged,
       onTap: widget.onTap,
       validator: widget.validator,
-      controller: _useLocalController ? _controller : widget.controller,
+      controller: _effectiveController, // Use the managed effective controller
       decoration: InputDecoration(
         // Hides the default counter text.
         counterText: "",

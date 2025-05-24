@@ -1,8 +1,10 @@
 name: group_dropdown_button
-description: "The group_dropdown_button Flutter package provides a highly customizable and versatile widget for creating grouped, searchable, and recursive dropdowns. It's ideal for applications requiring deeply nested, categorized selections with a Material Design aesthetic."
-version: 1.0.1
+description: The group_dropdown_button Flutter package provides a highly customizable and versatile widget for creating grouped, searchable, and recursive dropdowns. It's ideal for applications requiring deeply nested, categorized selections with a Material Design aesthetic.
+version: 1.0.2
 homepage:
+documentation: https://pub.dev/documentation/group_dropdown_button/latest/
 repository: https://github.com/t-mabrar/group_dropdown_button
+issue_tracker: https://github.com/t-mabrar/group_dropdown_button/issues
 
 environment:
   sdk: ^3.7.2

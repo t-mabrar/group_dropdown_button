@@ -15,3 +15,7 @@
     - Unecessary files - enums.dart and validations.dart is removed
     - Pubspec.yaml is updated with repository
     - dart analyze warnings are fixed
+
+## 1.0.2
+
+* - Added relevant details into pubspec.yaml file of the package

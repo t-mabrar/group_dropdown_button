@@ -21,9 +21,9 @@ This project provides a hands-on demonstration of how to integrate and utilize t
 | ------- | ------- |
 | <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/example/screenshots/android.png" height="500px"> | <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/example/screenshots/ios.png" height="500px" /> | 
 
-| macOS | Web |
+| mac | Web |
 | ------- | ------- |
-| <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/example/screenshots/mac.png" height="500px" /> | <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/example/screenshots/web.png" height="500px" /> |
+| <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/example/screenshots/mac.png" width="700px" /> | <img src="https://raw.githubusercontent.com/t-mabrar/group_dropdown_button/refs/heads/main/example/screenshots/web.png" width="700px" /> |
 
 
 

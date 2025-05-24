@@ -19,3 +19,7 @@
 ## 1.0.2
 
 * - Added relevant details into pubspec.yaml file of the package
+
+## 1.0.3
+
+* - Added relevant number of characters description in pubspec.yaml
